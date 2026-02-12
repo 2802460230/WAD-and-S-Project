@@ -41,7 +41,7 @@ Briefly describe: <br />
 • Why this solution is appropriate <br />
 • Where AI is used <br />
 
-4. Technology Stack
+# 4. Technology Stack
 Frontend | Next.js 14 (App Router)
 Backend | Next.js API Routes (Node.js)
 API | RESTful API
@@ -52,9 +52,9 @@ Deployment | Vercel / Railway / DigitalOcean
 Version Control | GitHub
 Authentication | NextAuth.js with JWT
 
-5.1 Architecture Diagram
+## 5.1 Architecture Diagram
 ![image](https://github.com/user-attachments/assets/14a68384-6038-49db-9335-737dd41c7038)
-5.2 Architecture Explanation
+## 5.2 Architecture Explanation
 
 Frontend ↔ API ↔ Database Interaction:
 User submits a math problem (text or image) through the Next.js frontend. The request goes to API routes, which validate the input and authenticate the user via JWT. If it's an image, OCR extracts the text. The problem is saved to PostgreSQL using Prisma, then sent to OpenAI API for solving. The solution is stored in the database and returned to the user.
