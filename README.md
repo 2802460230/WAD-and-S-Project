@@ -42,18 +42,20 @@ Briefly describe: <br />
 • Where AI is used <br />
 
 # 4. Technology Stack
-Frontend | Next.js 14 (App Router)
-Backend | Next.js API Routes (Node.js)
-API | RESTful API
-Database | PostgreSQL with Prisma ORM
-AI Services | OpenAI API (GPT-4 for math solving)
-Containerization | Docker
-Deployment | Vercel / Railway / DigitalOcean
-Version Control | GitHub
-Authentication | NextAuth.js with JWT
+Frontend: Next.js 14
+Backend: Next.js 14
+API: REST via Next.js API routes
+Database: PostgreSQL + Prisma
+Container: Docker + docker-compose
+Deployment: Unsure
+Version Control: GitHub
+AI: Google Gemini API (free)
+Auth: JWT
+DNS: Cloudflare
 
 ## 5.1 Architecture Diagram
-![image](https://github.com/user-attachments/assets/14a68384-6038-49db-9335-737dd41c7038)
+<img width="738" height="659" alt="image" src="https://github.com/user-attachments/assets/7cf17931-312f-450f-8501-61b588a366c4" />
+
 ## 5.2 Architecture Explanation
 
 Frontend ↔ API ↔ Database Interaction:
