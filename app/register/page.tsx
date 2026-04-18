@@ -50,7 +50,7 @@ export default function RegisterPage() {
           <div>
             <label className="block text-sm mb-1">Email</label>
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-2"

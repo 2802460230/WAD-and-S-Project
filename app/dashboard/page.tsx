@@ -82,8 +82,9 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div>
-              <label className="block text-sm mb-1">Upload Image</label>
+              <label htmlFor="image-upload" className="block text-sm mb-1">Upload Image</label>
               <input
+                id="image-upload"
                 type="file"
                 accept="image/jpeg,image/png"
                 onChange={handleImageChange}
