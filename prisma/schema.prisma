@@ -1,0 +1,74 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String
+  name         String?
+  role         String     @default("student")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  problems     Problem[]
+  bookmarks    Bookmark[]
+  feedbacks    Feedback[]
+}
+
+model Problem {
+  id        String     @id @default(uuid())
+  userId    String
+  content   String
+  inputType String     @default("text")
+  topic     String?
+  createdAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id])
+  solution  Solution?
+  bookmarks Bookmark[]
+}
+
+model Solution {
+  id        String     @id @default(uuid())
+  problemId String     @unique
+  steps     Json
+  topic     String?
+  createdAt DateTime   @default(now())
+  problem   Problem    @relation(fields: [problemId], references: [id])
+  feedbacks Feedback[]
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  problem   Problem  @relation(fields: [problemId], references: [id])
+
+  @@unique([userId, problemId])
+}
+
+model Feedback {
+  id         String   @id @default(uuid())
+  userId     String
+  solutionId String
+  rating     Int
+  comment    String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  solution   Solution @relation(fields: [solutionId], references: [id])
+}
+
+model ImageUpload {
+  id         String   @id @default(uuid())
+  problemId  String
+  filename   String
+  fileType   String
+  fileSize   Int
+  uploadedAt DateTime @default(now())
+}
