@@ -1,33 +1,103 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+interface Step {
+  step: number;
+  explanation: string;
+  result: string;
+}
+
+interface Solution {
+  topic: string;
+  steps: Step[];
+}
+
 export default function ResultsPage() {
   const router = useRouter();
+  const [solution, setSolution] = useState<Solution | null>(null);
+  const [problem, setProblem] = useState("");
+  const [bookmarked, setBookmarked] = useState(false);
+  const [hints, setHints] = useState<string[]>([]);
+  const [practice, setPractice] = useState<{ id: number; problem: string }[]>([]);
+  const [loadingHints, setLoadingHints] = useState(false);
+  const [loadingPractice, setLoadingPractice] = useState(false);
+  const [error, setError] = useState("");
 
-  // Temporary placeholder solution (real data comes from API in Week 5)
-  const solution = {
-    problem: "Solve x² + 5x + 6 = 0",
-    topic: "Algebra",
-    steps: [
-      {
-        step: 1,
-        explanation: "Factor the quadratic expression",
-        result: "(x + 2)(x + 3) = 0",
-      },
-      {
-        step: 2,
-        explanation: "Set each factor equal to zero",
-        result: "x + 2 = 0 or x + 3 = 0",
-      },
-      {
-        step: 3,
-        explanation: "Solve for x in each equation",
-        result: "x = -2 or x = -3",
-      },
-    ],
+  useEffect(() => {
+    const storedSolution = sessionStorage.getItem("solution");
+    const storedProblem = sessionStorage.getItem("problem");
+
+    if (!storedSolution) {
+      router.push("/dashboard");
+      return;
+    }
+
+    setSolution(JSON.parse(storedSolution));
+    setProblem(storedProblem || "");
+  }, [router]);
+
+  const handleBookmark = async () => {
+    try {
+      const response = await fetch("/api/bookmarks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ problemId: JSON.parse(sessionStorage.getItem("solution") || "{}").problemId }),
+      });
+
+      if (response.ok) {
+        setBookmarked(true);
+      }
+    } catch {
+      setError("Failed to bookmark");
+    }
   };
+
+  const handleHints = async () => {
+    setLoadingHints(true);
+    try {
+      const response = await fetch("/api/hints", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ problem }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setHints(data.hints);
+      }
+    } catch {
+      setError("Failed to load hints");
+    } finally {
+      setLoadingHints(false);
+    }
+  };
+
+  const handlePractice = async () => {
+    setLoadingPractice(true);
+    try {
+      const response = await fetch("/api/practice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: solution?.topic }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setPractice(data.problems);
+      }
+    } catch {
+      setError("Failed to load practice problems");
+    } finally {
+      setLoadingPractice(false);
+    }
+  };
+
+  if (!solution) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   return (
     <main className="min-h-screen p-8">
@@ -42,7 +112,7 @@ export default function ResultsPage() {
 
       <div className="max-w-xl mx-auto">
         <p className="text-sm text-gray-500 mb-1">Topic: {solution.topic}</p>
-        <h2 className="text-xl font-bold mb-6">{solution.problem}</h2>
+        <h2 className="text-xl font-bold mb-6">{problem}</h2>
 
         <div className="flex flex-col gap-4 mb-8">
           {solution.steps.map((s) => (
@@ -54,15 +124,47 @@ export default function ResultsPage() {
           ))}
         </div>
 
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
+        {hints.length > 0 && (
+          <div className="border border-gray-200 rounded p-4 mb-4">
+            <h3 className="font-bold mb-2">Hints</h3>
+            {hints.map((hint, i) => (
+              <p key={i} className="text-sm mb-1">• {hint}</p>
+            ))}
+          </div>
+        )}
+
+        {practice.length > 0 && (
+          <div className="border border-gray-200 rounded p-4 mb-4">
+            <h3 className="font-bold mb-2">Practice Problems</h3>
+            {practice.map((p) => (
+              <p key={p.id} className="text-sm mb-1">• {p.problem}</p>
+            ))}
+          </div>
+        )}
+
         <div className="flex flex-col gap-3">
-          <button className="w-full border border-gray-900 py-2 rounded">
-            View Hints
+          <button
+            onClick={handleHints}
+            disabled={loadingHints}
+            className="w-full border border-gray-900 py-2 rounded disabled:opacity-50"
+          >
+            {loadingHints ? "Loading hints..." : "View Hints"}
           </button>
-          <button className="w-full border border-gray-900 py-2 rounded">
-            View Practice Problems
+          <button
+            onClick={handlePractice}
+            disabled={loadingPractice}
+            className="w-full border border-gray-900 py-2 rounded disabled:opacity-50"
+          >
+            {loadingPractice ? "Loading..." : "View Practice Problems"}
           </button>
-          <button className="w-full border border-gray-900 py-2 rounded">
-            Bookmark
+          <button
+            onClick={handleBookmark}
+            disabled={bookmarked}
+            className="w-full border border-gray-900 py-2 rounded disabled:opacity-50"
+          >
+            {bookmarked ? "Bookmarked ✓" : "Bookmark"}
           </button>
           <button
             onClick={() => router.push("/dashboard")}

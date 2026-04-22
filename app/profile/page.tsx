@@ -1,17 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
-  // Temporary placeholder data (real data from API in Week 8)
-  const [name, setName] = useState("Jack J. Jackson");
-  const [email, setEmail] = useState("jack@email.com");
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await fetch("/api/profile");
+        const data = await response.json();
+
+        if (!response.ok) {
+          setError(data.error || "Failed to load profile");
+          return;
+        }
+
+        setEmail(data.email);
+        setName(data.name || "");
+      } catch {
+        setError("Something went wrong");
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -25,9 +48,35 @@ export default function ProfilePage() {
       return;
     }
 
-    // Temporary: just close edit mode (real save in Week 8)
-    setIsEditing(false);
-    setSuccess("Profile updated successfully");
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Failed to update profile");
+        return;
+      }
+
+      setIsEditing(false);
+      setSuccess("Profile updated successfully");
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    document.cookie = "token=; path=/; max-age=0";
+    localStorage.removeItem("user");
+    router.push("/login");
   };
 
   return (
@@ -48,7 +97,7 @@ export default function ProfilePage() {
           <div className="flex flex-col gap-4">
             <div className="border border-gray-200 rounded p-4">
               <p className="text-xs text-gray-400 mb-1">Name</p>
-              <p className="font-medium">{name}</p>
+              <p className="font-medium">{name || "Not set"}</p>
             </div>
             <div className="border border-gray-200 rounded p-4">
               <p className="text-xs text-gray-400 mb-1">Email</p>
@@ -62,7 +111,7 @@ export default function ProfilePage() {
               Edit Profile
             </button>
             <button
-              onClick={() => {}}
+              onClick={handleLogout}
               className="w-full bg-gray-900 text-white py-2 rounded"
             >
               Logout
@@ -91,9 +140,10 @@ export default function ProfilePage() {
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <button
               type="submit"
-              className="w-full bg-gray-900 text-white py-2 rounded"
+              disabled={loading}
+              className="w-full bg-gray-900 text-white py-2 rounded disabled:opacity-50"
             >
-              Save Changes
+              {loading ? "Saving..." : "Save Changes"}
             </button>
             <button
               type="button"

@@ -10,8 +10,9 @@ export default function DashboardPage() {
   const [problem, setProblem] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -24,8 +25,55 @@ export default function DashboardPage() {
       return;
     }
 
-    // Temporary: navigate to results (backend wired in Week 5)
-    router.push("/results");
+    setLoading(true);
+
+    try {
+      let problemText = problem;
+
+      // If image input, run OCR first
+      if (inputType === "image" && image) {
+        const formData = new FormData();
+        formData.append("image", image);
+
+        const ocrResponse = await fetch("/api/ocr", {
+          method: "POST",
+          body: formData,
+        });
+
+        const ocrData = await ocrResponse.json();
+
+        if (!ocrResponse.ok) {
+          setError(ocrData.error || "Failed to extract text from image");
+          return;
+        }
+
+        problemText = ocrData.extractedText;
+      }
+
+      // Send to solve
+      const solveResponse = await fetch("/api/solve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ problem: problemText }),
+      });
+
+      const solveData = await solveResponse.json();
+
+      if (!solveResponse.ok) {
+        setError(solveData.error || "Failed to solve problem");
+        return;
+      }
+
+      // Store solution in sessionStorage for results page
+      sessionStorage.setItem("solution", JSON.stringify(solveData));
+      sessionStorage.setItem("problem", problemText);
+
+      router.push("/results");
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,6 +88,12 @@ export default function DashboardPage() {
     setError("");
   };
 
+  const handleLogout = () => {
+    document.cookie = "token=; path=/; max-age=0";
+    localStorage.removeItem("user");
+    router.push("/login");
+  };
+
   return (
     <main className="min-h-screen p-8">
       <nav className="flex justify-between items-center mb-8">
@@ -48,6 +102,7 @@ export default function DashboardPage() {
           <Link href="/history" className="underline">History</Link>
           <Link href="/bookmarks" className="underline">Bookmarks</Link>
           <Link href="/profile" className="underline">Profile</Link>
+          <button onClick={handleLogout} className="underline">Logout</button>
         </div>
       </nav>
 
@@ -98,9 +153,10 @@ export default function DashboardPage() {
 
           <button
             type="submit"
-            className="w-full bg-gray-900 text-white py-2 rounded"
+            disabled={loading}
+            className="w-full bg-gray-900 text-white py-2 rounded disabled:opacity-50"
           >
-            Solve
+            {loading ? "Solving..." : "Solve"}
           </button>
         </form>
       </div>
