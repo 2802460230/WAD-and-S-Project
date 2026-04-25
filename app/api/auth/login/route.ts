@@ -1,4 +1,6 @@
 import { loginUser } from "@/services/authService";
+import { sanitizeEmail } from "@/lib/sanitize";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 /**
  * @swagger
@@ -25,26 +27,30 @@ import { loginUser } from "@/services/authService";
  *     responses:
  *       200:
  *         description: Login successful, returns JWT token
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 token:
- *                   type: string
- *                 email:
- *                   type: string
- *                 role:
- *                   type: string
  *       400:
  *         description: Email and password are required
  *       401:
  *         description: Invalid email or password
+ *       429:
+ *         description: Too many login attempts
  *       500:
  *         description: Internal server error
  */
 export async function POST(request: Request) {
   try {
+    // Rate limit by IP
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const rateLimit = checkRateLimit(`login:${ip}`, 5, 60 * 1000);
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many login attempts. Please wait before trying again." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil(rateLimit.resetIn / 1000)) },
+        }
+      );
+    }
+
     const { email, password } = await request.json();
 
     if (!email || !password) {
@@ -54,7 +60,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await loginUser(email, password);
+    const sanitizedEmail = sanitizeEmail(email);
+    const result = await loginUser(sanitizedEmail, password);
 
     if (!result.success) {
       return Response.json({ error: result.error }, { status: 401 });

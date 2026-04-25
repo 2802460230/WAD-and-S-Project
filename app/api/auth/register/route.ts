@@ -1,4 +1,6 @@
 import { registerUser } from "@/services/authService";
+import { sanitizeEmail } from "@/lib/sanitize";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 /**
  * @swagger
@@ -25,24 +27,28 @@ import { registerUser } from "@/services/authService";
  *     responses:
  *       201:
  *         description: User registered successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                 email:
- *                   type: string
- *                 role:
- *                   type: string
  *       400:
  *         description: Email already registered or validation failed
+ *       429:
+ *         description: Too many registration attempts
  *       500:
  *         description: Internal server error
  */
 export async function POST(request: Request) {
   try {
+    // Rate limit by IP
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    const rateLimit = checkRateLimit(`register:${ip}`, 3, 60 * 1000);
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many registration attempts. Please wait before trying again." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil(rateLimit.resetIn / 1000)) },
+        }
+      );
+    }
+
     const { email, password } = await request.json();
 
     if (!email || !password) {
@@ -52,8 +58,10 @@ export async function POST(request: Request) {
       );
     }
 
+    const sanitizedEmail = sanitizeEmail(email);
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(sanitizedEmail)) {
       return Response.json(
         { error: "Please enter a valid email address" },
         { status: 400 }
@@ -67,7 +75,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = await registerUser(email, password);
+    const result = await registerUser(sanitizedEmail, password);
 
     if (!result.success) {
       return Response.json({ error: result.error }, { status: 400 });

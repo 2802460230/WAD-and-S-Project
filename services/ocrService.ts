@@ -4,7 +4,7 @@ const apiKey = process.env.GEMINI_API_KEY!;
 const genAI = new GoogleGenerativeAI(apiKey);
 
 // OCR needs the vision model which supports image input
-const visionModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const visionModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
 export async function extractMathFromImage(imageBase64: string, mimeType: string) {
   const prompt = `Look at this image. Extract only the mathematical expression or problem you see.

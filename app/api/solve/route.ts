@@ -1,6 +1,8 @@
 import { solveProblem } from "@/services/mathService";
 import { saveProblem } from "@/services/userService";
-import { verifyToken } from "@/lib/auth";
+import { getTokenFromRequest, verifyToken } from "@/lib/auth";
+import { sanitizeInput, detectPromptInjection } from "@/lib/sanitize";
+import { checkRateLimit } from "@/lib/rateLimit";
 
 /**
  * @swagger
@@ -29,23 +31,37 @@ import { verifyToken } from "@/lib/auth";
  *         description: Problem text is required or too long
  *       401:
  *         description: Unauthorized - invalid or missing token
+ *       429:
+ *         description: Too many requests
  *       500:
  *         description: Internal server error
  */
 export async function POST(request: Request) {
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const token = await getTokenFromRequest(request);
+    if (!token) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const token = authHeader.split(" ")[1];
     const user = verifyToken(token);
     if (!user) {
       return Response.json({ error: "Invalid or expired token" }, { status: 401 });
     }
 
+    // Rate limiting
+    const rateLimit = checkRateLimit(`solve:${user.userId}`, 10, 60 * 1000);
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many requests. Please wait before submitting another problem." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil(rateLimit.resetIn / 1000)) },
+        }
+      );
+    }
+
     const { problem } = await request.json();
+
     if (!problem || !problem.trim()) {
       return Response.json({ error: "Problem text is required" }, { status: 400 });
     }
@@ -54,18 +70,23 @@ export async function POST(request: Request) {
       return Response.json({ error: "Problem text is too long" }, { status: 400 });
     }
 
-    console.log("Calling solveProblem with:", problem);
-    const result = await solveProblem(problem);
-    console.log("solveProblem result:", result);
+    // Check for prompt injection
+    if (detectPromptInjection(problem)) {
+      return Response.json({ error: "Invalid input detected" }, { status: 400 });
+    }
+
+    // Sanitize input
+    const sanitizedProblem = sanitizeInput(problem);
+
+    const result = await solveProblem(sanitizedProblem);
 
     if (!result.success) {
       return Response.json({ error: result.error }, { status: 500 });
     }
 
-    console.log("Saving problem to database");
     await saveProblem(
       user.userId,
-      problem,
+      sanitizedProblem,
       result.data.topic,
       result.data.steps
     );

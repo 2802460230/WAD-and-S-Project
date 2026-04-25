@@ -1,5 +1,5 @@
 import { getUserBookmarks, saveBookmark } from "@/services/userService";
-import { verifyToken } from "@/lib/auth";
+import { getTokenFromRequest, verifyToken } from "@/lib/auth";
 
 /**
  * @swagger
@@ -58,12 +58,10 @@ import { verifyToken } from "@/lib/auth";
  */
 export async function GET(request: Request) {
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const token = await getTokenFromRequest(request);
+    if (!token) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const token = authHeader.split(" ")[1];
     const user = verifyToken(token);
     if (!user) {
       return Response.json({ error: "Invalid or expired token" }, { status: 401 });
@@ -78,12 +76,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const token = await getTokenFromRequest(request);
+    if (!token) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const token = authHeader.split(" ")[1];
     const user = verifyToken(token);
     if (!user) {
       return Response.json({ error: "Invalid or expired token" }, { status: 401 });
