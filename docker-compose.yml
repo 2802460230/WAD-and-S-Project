@@ -1,0 +1,13 @@
+name: mathmentor
+
+services:
+  app:
+    image: ${DOCKER_USERNAME:-local}/mathmentor:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.production
+    ports:
+      - "3013:3013"
+    restart: unless-stopped

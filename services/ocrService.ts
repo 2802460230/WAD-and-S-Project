@@ -1,35 +1,40 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { groq } from "@/lib/groq";
 
-const apiKey = process.env.GEMINI_API_KEY!;
-const genAI = new GoogleGenerativeAI(apiKey);
-
-// OCR needs the vision model which supports image input
-const visionModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct";
 
 export async function extractMathFromImage(imageBase64: string, mimeType: string) {
-  const prompt = `Look at this image. Extract only the mathematical expression or problem you see.
-Return only the raw math expression as plain text, nothing else.
-If you cannot find a math problem in the image, return exactly: NO_MATH_FOUND`;
-
   try {
-    const result = await visionModel.generateContent([
-      {
-        inlineData: {
-          data: imageBase64,
-          mimeType: mimeType,
+    const completion = await groq.chat.completions.create({
+      model: VISION_MODEL,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image_url",
+              image_url: { url: `data:${mimeType};base64,${imageBase64}` },
+            },
+            {
+              type: "text",
+              text: `Look at this image. Extract only the mathematical expression or problem you see.
+Return only the raw math expression as plain text, nothing else.
+If you cannot find a math problem in the image, return exactly: NO_MATH_FOUND`,
+            },
+          ],
         },
-      },
-      prompt,
-    ]);
+      ],
+      max_tokens: 512,
+    });
 
-    const text = result.response.text().trim();
+    const text = completion.choices[0]?.message?.content?.trim() ?? "";
 
-    if (text === "NO_MATH_FOUND") {
+    if (!text || text === "NO_MATH_FOUND") {
       return { success: false, error: "No math problem found in image" };
     }
 
     return { success: true, data: { extractedText: text } };
-  } catch {
+  } catch (err) {
+    console.error("[ocrService] Groq vision call failed:", err);
     return { success: false, error: "OCR processing failed" };
   }
 }

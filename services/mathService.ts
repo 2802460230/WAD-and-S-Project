@@ -1,4 +1,12 @@
-import { geminiModel } from "@/lib/gemini";
+import { groq, GROQ_MODEL } from "@/lib/groq";
+
+async function chat(prompt: string): Promise<string> {
+  const completion = await groq.chat.completions.create({
+    messages: [{ role: "user", content: prompt }],
+    model: GROQ_MODEL,
+  });
+  return completion.choices[0]?.message?.content ?? "";
+}
 
 export async function solveProblem(problem: string) {
   const prompt = `You are a math tutor. Solve the following problem step by step.
@@ -15,8 +23,7 @@ Return your response in this exact JSON format with no markdown, no code blocks,
 
 Problem: ${problem}`;
 
-  const result = await geminiModel.generateContent(prompt);
-  const text = result.response.text();
+  const text = await chat(prompt);
 
   try {
     const parsed = JSON.parse(text);
@@ -36,8 +43,7 @@ Return as raw JSON only, no markdown:
 
 Problem: ${problem}`;
 
-  const result = await geminiModel.generateContent(prompt);
-  const text = result.response.text();
+  const text = await chat(prompt);
 
   try {
     const parsed = JSON.parse(text);
@@ -60,8 +66,7 @@ Return as raw JSON only, no markdown:
   ]
 }`;
 
-  const result = await geminiModel.generateContent(prompt);
-  const text = result.response.text();
+  const text = await chat(prompt);
 
   try {
     const parsed = JSON.parse(text);

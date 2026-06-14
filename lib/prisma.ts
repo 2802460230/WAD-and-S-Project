@@ -14,3 +14,5 @@ export const prisma =
   new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+console.log("DB URL first 30 chars:", process.env.DATABASE_URL?.substring(0, 30));

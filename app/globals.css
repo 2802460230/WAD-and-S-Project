@@ -1,1 +1,144 @@
 @import "tailwindcss";
+
+/* Class-based dark mode (toggled on <html class="dark">) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---- Semantic tokens (light) ---- */
+:root {
+  --bg: #e7ece8;          /* app content background (sage) */
+  --surface: #ffffff;     /* cards */
+  --surface-2: #f1f4f1;   /* inputs / inset panels */
+  --topbar: #dde2dd;      /* app top bar */
+  --ink: #14201c;         /* primary text */
+  --muted: #5d6c66;       /* secondary text */
+  --line: #dde2dd;        /* borders */
+
+  --brand: #00c897;       /* emerald */
+  --brand-strong: #00b083;
+  --brand-ink: #053b30;   /* text on emerald */
+  --mint: #c7f1e6;        /* badge / chip tint */
+  --mint-ink: #0c5a4d;    /* text on mint */
+
+  --answer-from: #0f3d34; /* final-answer card gradient */
+  --answer-to: #11332c;
+
+  --coral: #f6c7c7;       /* destructive (log out) */
+  --coral-ink: #b3261e;
+
+  /* canvas (landing / auth) — dark in both themes, lighter green here */
+  --canvas-from: #0e2b30;
+  --canvas-to: #0c4f44;
+  --auth-card: rgba(243, 246, 243, 0.92);
+  --auth-card-ink: #14201c;
+  --auth-field: #e6eae6;
+}
+
+/* ---- Semantic tokens (dark) ---- */
+.dark {
+  --bg: #1d212a;
+  --surface: #262c38;
+  --surface-2: #20252f;
+  --topbar: #161a22;
+  --ink: #eef2f0;
+  --muted: #94a09b;
+  --line: #313845;
+
+  --brand: #00c897;
+  --brand-strong: #1ad7a9;
+  --brand-ink: #042720;
+  --mint: rgba(0, 200, 151, 0.16);
+  --mint-ink: #6ee7c7;
+
+  --answer-from: #0c3a31;
+  --answer-to: #0e2a25;
+
+  --coral: rgba(244, 120, 120, 0.18);
+  --coral-ink: #f99b9b;
+
+  --canvas-from: #07241f;
+  --canvas-to: #0a3b32;
+  --auth-card: rgba(31, 37, 47, 0.92);
+  --auth-card-ink: #eef2f0;
+  --auth-field: #2a313d;
+}
+
+/* ---- Map tokens to Tailwind utilities (bg-surface, text-ink, border-line, ...) ---- */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-topbar: var(--topbar);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-ink: var(--brand-ink);
+  --color-mint: var(--mint);
+  --color-mint-ink: var(--mint-ink);
+
+  --color-coral: var(--coral);
+  --color-coral-ink: var(--coral-ink);
+
+  --color-auth-field: var(--auth-field);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+/* The dark gradient canvas used by landing / login / register */
+.mm-canvas {
+  background:
+    radial-gradient(120% 120% at 12% 88%, var(--canvas-to) 0%, transparent 55%),
+    linear-gradient(135deg, var(--canvas-to) 0%, var(--canvas-from) 60%);
+}
+
+/* Sidebar gradient */
+.mm-sidebar {
+  background: linear-gradient(180deg, #10262b 0%, #0c4f44 100%);
+}
+.dark .mm-sidebar {
+  background: linear-gradient(180deg, #0d0f14 0%, #0c1714 100%);
+}
+
+/* Final-answer card */
+.mm-answer {
+  background: linear-gradient(135deg, var(--answer-from), var(--answer-to));
+}
+
+/* Floating glyph layer for the canvas */
+.mm-glyph {
+  position: absolute;
+  font-family: var(--font-display), serif;
+  font-style: italic;
+  color: #ffffff;
+  opacity: 0.06;
+  filter: blur(2px);
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
