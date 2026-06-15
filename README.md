@@ -97,7 +97,7 @@ Example request & response (JSON):
 # 7. Database Design <br />
 
 ## 7.1 Database Choice <br />
-Explain why you chose: 
+Explain why you chose: <br />
 • PostgreSQL / MongoDB / Firebase 
 
 ## 7.2 Schema / Data Structure <br />
