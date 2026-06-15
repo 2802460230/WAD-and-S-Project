@@ -1,6 +1,7 @@
-import { groq, GROQ_MODEL } from "@/lib/groq";
+import { getGroqClient, GROQ_MODEL } from "@/lib/groq";
 
 async function chat(prompt: string): Promise<string> {
+  const groq = getGroqClient();
   const completion = await groq.chat.completions.create({
     messages: [{ role: "user", content: prompt }],
     model: GROQ_MODEL,
