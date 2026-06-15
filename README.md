@@ -225,7 +225,7 @@ code was reviewed and modified by the team.”
 We declare that: <br />
 • This project is our own work <br />
 • AI usage is disclosed honestly <br />
-• All group members understand the system (except Edward) <br />
+• All group members (except Edward) understand the system <br /> <br />
 Signed by Group Members: <br />
 • Darrus Loamayer <br />
 • Edward Liandi <br />
