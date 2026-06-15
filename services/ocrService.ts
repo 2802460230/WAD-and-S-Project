@@ -1,10 +1,10 @@
-import { groq } from "@/lib/groq";
+import { getGroqClient } from "@/lib/groq";
 
 const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct";
 
 export async function extractMathFromImage(imageBase64: string, mimeType: string) {
   try {
-    const completion = await groq.chat.completions.create({
+    const completion = await getGroqClient().chat.completions.create({
       model: VISION_MODEL,
       messages: [
         {
