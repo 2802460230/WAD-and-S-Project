@@ -76,6 +76,42 @@ Input validation: Sanitize text input (XSS prevention), validate image files (ty
 Database: Prisma prevents SQL injection, users can only access their own problems
 API keys: Stored in environment variables, never exposed to client
 
+
+# 6. API Design <br />
+
+## 6.1 API Endpoints <br />
+
+|Method | Endpoint | Description | Auth Required |
+|--------|--------|--------|--------|
+|GET | | | Yes / No |
+|POST | | | Yes / No |
+|PUT | | | Yes / No |
+|DELETE | | | Yes / No |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
