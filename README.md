@@ -170,21 +170,41 @@ Failure Handling: <br />
 
 # 11. Deployment & Production Setup <br />
 
-# 11.1 Docker Setup <br />  
+## 11.1 Docker Setup <br />  
 • Dockerfile included    
 • docker-compose.yml included    
 
-# 11.2 Production Environment <br />
+## 11.2 Production Environment <br />
 Explain: 
 • Environment variables 
 • Secrets handling 
 • HTTPS configuration 
 
-# 11.3 Live Application URL <br />
+## 11.3 Live Application URL <br />
 https://e2526-wads-b4ac-04.csbihub.id
 
 
-# 12. 
+# 12. GitHub Contribution Summary (INDIVIDUAL) <br />
+Each student must list their own contribution.
+
+Student Name: Darrus Loamayer
+• Features implemented: [insert here]
+• API endpoints handled: [insert here]
+• Tests written: [insert here]
+• Security work: [insert here]
+• AI-related work: [insert here]
+
+Student Name: Edward Liandi 
+• Features implemented: None
+• API endpoints handled: None
+• Tests written: None
+• Security work: None
+• AI-related work: None
+
+Contributions must match GitHub commit history. 
+
+
+# 13. AI Usage Disclosure (MANDATORY) <br />
 
 
 
