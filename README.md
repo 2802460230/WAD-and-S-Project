@@ -116,20 +116,20 @@ Describe at least TWO AI features.
 
 ## 8.2 AI Integration Flow <br />
 Explain: 
-• Input → AI processing → Output 
-• How AI results are used in the system 
+• Input → AI processing → Output <br />
+• How AI results are used in the system <br />
 
 
 # 9. Security Implementation <br />
-Describe how your project handles: 
-• Authentication (JWT / session) 
-• Authorization (roles) 
-• Input validation 
-• Protection against: 
-o SQL / NoSQL Injection 
-o XSS 
-o CSRF 
-• Secure API key handling
+Describe how your project handles: <br />
+• Authentication (JWT / session) <br />
+• Authorization (roles) <br />
+• Input validation <br />
+• Protection against: <br />
+o SQL / NoSQL Injection <br />
+o XSS <br />
+o CSRF <br />
+• Secure API key handling <br />
 
 
 
