@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import HistoryPage from "../app/history/page";
+import HistoryPage from "../app/(app)/history/page";
 import "@testing-library/jest-dom";
 
 jest.mock("next/navigation", () => ({
@@ -11,25 +11,17 @@ jest.mock("next/navigation", () => ({
 describe("History Page", () => {
   test("renders history page", () => {
     render(<HistoryPage />);
-    expect(screen.getByText("Problem History")).toBeInTheDocument();
+    expect(screen.getByText("History")).toBeInTheDocument();
   });
 
-  test("displays placeholder problems", () => {
+  test("shows loading state initially", () => {
     render(<HistoryPage />);
-    expect(
-      screen.getByText("Solve x² + 5x + 6 = 0")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Find the derivative of x³ + 2x")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Simplify (2x + 3)(x - 1)")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Loading history…")).toBeInTheDocument();
   });
 
-  test("displays topic categories", () => {
+  test("displays topic filter buttons", () => {
     render(<HistoryPage />);
-    const algebraItems = screen.getAllByText(/Algebra/);
-    expect(algebraItems.length).toBeGreaterThan(0);
+    expect(screen.getByRole("button", { name: "Algebra" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Calculus" })).toBeInTheDocument();
   });
 });

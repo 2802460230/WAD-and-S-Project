@@ -22,7 +22,7 @@ describe("Register Page", () => {
 
   test("shows error when email format is invalid", () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText("you@email.com"), {
+    fireEvent.change(screen.getByPlaceholderText("you@gmail.com"), {
       target: { value: "notanemail" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Register" }));
@@ -33,7 +33,7 @@ describe("Register Page", () => {
 
   test("shows error when password is empty", () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText("you@email.com"), {
+    fireEvent.change(screen.getByPlaceholderText("you@gmail.com"), {
       target: { value: "test@email.com" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Register" }));
@@ -42,7 +42,7 @@ describe("Register Page", () => {
 
   test("shows error when password is less than 8 characters", () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText("you@email.com"), {
+    fireEvent.change(screen.getByPlaceholderText("you@gmail.com"), {
       target: { value: "test@email.com" },
     });
     fireEvent.change(screen.getAllByPlaceholderText("••••••••")[0], {
@@ -56,7 +56,7 @@ describe("Register Page", () => {
 
   test("shows error when passwords do not match", () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText("you@email.com"), {
+    fireEvent.change(screen.getByPlaceholderText("you@gmail.com"), {
       target: { value: "test@email.com" },
     });
     fireEvent.change(screen.getAllByPlaceholderText("••••••••")[0], {

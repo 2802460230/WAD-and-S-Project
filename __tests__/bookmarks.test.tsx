@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import BookmarksPage from "../app/bookmarks/page";
+import BookmarksPage from "../app/(app)/bookmarks/page";
 import "@testing-library/jest-dom";
 
 jest.mock("next/navigation", () => ({
@@ -14,19 +14,13 @@ describe("Bookmarks Page", () => {
     expect(screen.getByText("Bookmarks")).toBeInTheDocument();
   });
 
-  test("displays placeholder bookmarks", () => {
+  test("shows loading state initially", () => {
     render(<BookmarksPage />);
-    expect(
-      screen.getByText("Solve x² + 5x + 6 = 0")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Find the derivative of x³ + 2x")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Loading bookmarks…")).toBeInTheDocument();
   });
 
-  test("displays topic categories", () => {
+  test("shows saved count badge", () => {
     render(<BookmarksPage />);
-    const algebraItems = screen.getAllByText(/Algebra/);
-    expect(algebraItems.length).toBeGreaterThan(0);
+    expect(screen.getByText("0 Saved")).toBeInTheDocument();
   });
 });

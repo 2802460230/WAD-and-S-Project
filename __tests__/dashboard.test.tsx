@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import DashboardPage from "../app/dashboard/page";
+import DashboardPage from "../app/(app)/dashboard/page";
 import "@testing-library/jest-dom";
 
 jest.mock("next/navigation", () => ({
@@ -11,19 +11,19 @@ jest.mock("next/navigation", () => ({
 describe("Dashboard Page", () => {
   test("renders dashboard", () => {
     render(<DashboardPage />);
-    expect(screen.getByText("Submit a Problem")).toBeInTheDocument();
+    expect(screen.getByText("Submit a problem")).toBeInTheDocument();
   });
 
   test("shows text input by default", () => {
     render(<DashboardPage />);
     expect(
-      screen.getByPlaceholderText("e.g. Solve x² + 5x + 6 = 0")
+      screen.getByPlaceholderText("e.g.  Solve x² + 5x + 6 = 0")
     ).toBeInTheDocument();
   });
 
   test("shows error when text input is empty and submitted", () => {
     render(<DashboardPage />);
-    fireEvent.click(screen.getByRole("button", { name: "Solve" }));
+    fireEvent.click(screen.getByRole("button", { name: "Solve Problem" }));
     expect(
       screen.getByText("Please enter a math problem")
     ).toBeInTheDocument();
@@ -32,13 +32,13 @@ describe("Dashboard Page", () => {
   test("switches to image input when image tab is clicked", () => {
     render(<DashboardPage />);
     fireEvent.click(screen.getByRole("button", { name: "Image" }));
-    expect(screen.getByText("Upload Image")).toBeInTheDocument();
+    expect(screen.getByText("Drop your image here")).toBeInTheDocument();
   });
 
   test("shows error when image tab selected but no file uploaded", () => {
     render(<DashboardPage />);
     fireEvent.click(screen.getByRole("button", { name: "Image" }));
-    fireEvent.click(screen.getByRole("button", { name: "Solve" }));
+    fireEvent.click(screen.getByRole("button", { name: "Solve Problem" }));
     expect(screen.getByText("Please upload an image")).toBeInTheDocument();
   });
 
@@ -46,7 +46,7 @@ describe("Dashboard Page", () => {
     render(<DashboardPage />);
     fireEvent.click(screen.getByRole("button", { name: "Image" }));
     const file = new File(["test"], "test.pdf", { type: "application/pdf" });
-    const input = screen.getByLabelText("Upload Image");
+    const input = screen.getByLabelText(/drop your image here/i, { selector: "input" });
     fireEvent.change(input, { target: { files: [file] } });
     expect(
       screen.getByText("Only JPG and PNG images are allowed")

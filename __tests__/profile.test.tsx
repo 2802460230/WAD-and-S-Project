@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import ProfilePage from "../app/profile/page";
+import ProfilePage from "../app/(app)/profile/page";
 import "@testing-library/jest-dom";
 
 jest.mock("next/navigation", () => ({
@@ -9,54 +9,39 @@ jest.mock("next/navigation", () => ({
 }));
 
 describe("Profile Page", () => {
-  test("renders profile page with user data", () => {
+  test("renders profile page", () => {
     render(<ProfilePage />);
     expect(screen.getByText("Profile")).toBeInTheDocument();
-    expect(screen.getByText("Jack J. Jackson")).toBeInTheDocument();
-    expect(screen.getByText("jack@email.com")).toBeInTheDocument();
   });
 
-  test("switches to edit mode when Edit Profile is clicked", () => {
+  test("shows Change Password and Log Out buttons", () => {
     render(<ProfilePage />);
-    fireEvent.click(screen.getByRole("button", { name: "Edit Profile" }));
-    expect(screen.getByRole("button", { name: "Save Changes" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /change password/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /log out/i })).toBeInTheDocument();
+  });
+
+  test("clicking Change Password shows the password form", () => {
+    render(<ProfilePage />);
+    fireEvent.click(screen.getByRole("button", { name: /change password/i }));
+    expect(screen.getByText("Current Password")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Update Password" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
   });
 
-  test("shows error when name is cleared and saved", () => {
-    render(<ProfilePage />);
-    fireEvent.click(screen.getByRole("button", { name: "Edit Profile" }));
-    fireEvent.change(screen.getByDisplayValue("Jack J. Jackson"), {
-      target: { value: "" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Save Changes" }));
-    expect(screen.getByText("Name is required")).toBeInTheDocument();
+  test("shows error when new passwords do not match", () => {
+    const { container } = render(<ProfilePage />);
+    fireEvent.click(screen.getByRole("button", { name: /change password/i }));
+    const passwordInputs = container.querySelectorAll('input[type="password"]');
+    fireEvent.change(passwordInputs[1], { target: { value: "newpassword123" } });
+    fireEvent.change(passwordInputs[2], { target: { value: "differentpassword" } });
+    fireEvent.click(screen.getByRole("button", { name: "Update Password" }));
+    expect(screen.getByText("New passwords do not match")).toBeInTheDocument();
   });
 
-  test("shows error when email is cleared and saved", () => {
+  test("cancel hides the password form", () => {
     render(<ProfilePage />);
-    fireEvent.click(screen.getByRole("button", { name: "Edit Profile" }));
-    fireEvent.change(screen.getByDisplayValue("jack@email.com"), {
-      target: { value: "" },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Save Changes" }));
-    expect(screen.getByText("Email is required")).toBeInTheDocument();
-  });
-
-  test("cancel button returns to view mode", () => {
-    render(<ProfilePage />);
-    fireEvent.click(screen.getByRole("button", { name: "Edit Profile" }));
+    fireEvent.click(screen.getByRole("button", { name: /change password/i }));
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
-    expect(screen.getByText("Jack J. Jackson")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Edit Profile" })).toBeInTheDocument();
-  });
-
-  test("shows success message after saving valid changes", () => {
-    render(<ProfilePage />);
-    fireEvent.click(screen.getByRole("button", { name: "Edit Profile" }));
-    fireEvent.click(screen.getByRole("button", { name: "Save Changes" }));
-    expect(
-      screen.getByText("Profile updated successfully")
-    ).toBeInTheDocument();
+    expect(screen.queryByText("Current Password")).not.toBeInTheDocument();
   });
 });
