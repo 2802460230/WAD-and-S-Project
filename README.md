@@ -170,8 +170,21 @@ Failure Handling: <br />
 
 # 11. Deployment & Production Setup <br />
 
+# 11.1 Docker Setup <br />  
+• Dockerfile included    
+• docker-compose.yml included    
+
+# 11.2 Production Environment <br />
+Explain: 
+• Environment variables 
+• Secrets handling 
+• HTTPS configuration 
+
+# 11.3 Live Application URL <br />
+https://e2526-wads-b4ac-04.csbihub.id
 
 
+# 12. 
 
 
 
