@@ -132,7 +132,7 @@ o CSRF <br />
 • Secure API key handling <br />
 
 
-# 10. Testing Documentation (VERY IMPORTANT)
+# 10. Testing Documentation (VERY IMPORTANT) <br />
 All testing must be documented!
 
 ## 10.1 Frontend Testing
@@ -150,15 +150,26 @@ All testing must be documented!
 ## 10.3 Security Testing
 |Test Case | Attack Type | Expected Behavior | Result |
 |--------|--------|--------|--------|
-|SEC-01 | XSS | Input Sanitized | Pass |
-|SEC-02 | Injection | Query Blocked | Pass |
+|SEC-01 | XSS | Input Sanitized | Pass/Fail |
+|SEC-02 | Injection | Query Blocked | Pass/Fail |
 
-## 10.4 AI Functionality Testing
-|AI Feature | Purpose | AI Type |
-|--------|--------|--------|
-| | | NLP/OCR/Recommendation |
-| | | NLP/OCR/Recommendation |
-| | | NLP/OCR/Recommendation |
+## 10.4 AI Functionality Testing (MANDATORY)
+For each AI feature, complete the table below. <br />
+
+AI Feature: [Name]
+|Test Case | Input | Expected Output | Actual Result | Status |
+|--------|--------|--------|--------|--------|
+|AI-01 | Valid input | Correct response | | Pass|
+|AI-02 | Invalid input | Error/Fallback | | Pass|
+|AI-03 | Prompt injection | Sanitized | | Pass|
+
+Failure Handling: <br />
+• What happens if AI is unavailable? <br />
+• How is timeout handled? <br />
+
+
+# 11. Deployment & Production Setup <br />
+
 
 
 
