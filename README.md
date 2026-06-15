@@ -15,11 +15,11 @@ Math Problem Solver Application <br />
 Class: <br />
 L4AC <br />
 
-Group Members (Max 3 – same class only): <br />
-|Name Student | ID | GitHub Username |<br />
-|-------------|----|----------------|
-|Darrus Loamayer | 2802460230 | 2802460230 | <br />
-|Edward Liandi | 2702368154 | Edwardandi | <br />
+Group Members (Max 3 – same class only):
+|Name Student | ID | GitHub Username |
+|--------|--------|--------|
+|Darrus Loamayer | 2802460230 | 2802460230 |
+|Edward Liandi | 2702368154 | Edwardandi |
 
 # 2. Instructor & Repository Access <br />
 This repository must be shared with: <br />
