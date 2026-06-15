@@ -96,9 +96,40 @@ Example request & response (JSON):
 
 # 7. Database Design <br />
 
+## 7.1 Database Choice <br />
+Explain why you chose: 
+• PostgreSQL / MongoDB / Firebase 
+
+## 7.2 Schema / Data Structure <br />
+Insert ERD or data structure diagram. 
 
 
+# 8. AI Features <br />
 
+## 8.1 AI Feature List <br />
+Describe at least TWO AI features. 
+|AI Feature | Purpose | AI Type |
+|--------|--------|--------|
+| | | NLP/OCR/Recommendation |
+| | | NLP/OCR/Recommendation |
+| | | NLP/OCR/Recommendation |
+
+## 8.2 AI Integration Flow <br />
+Explain: 
+• Input → AI processing → Output 
+• How AI results are used in the system 
+
+
+# 9. Security Implementation <br />
+Describe how your project handles: 
+• Authentication (JWT / session) 
+• Authorization (roles) 
+• Input validation 
+• Protection against: 
+o SQL / NoSQL Injection 
+o XSS 
+o CSRF 
+• Secure API key handling
 
 
 
