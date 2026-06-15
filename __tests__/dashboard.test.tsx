@@ -17,7 +17,7 @@ describe("Dashboard Page", () => {
   test("shows text input by default", () => {
     render(<DashboardPage />);
     expect(
-      screen.getByPlaceholderText("e.g.  Solve x² + 5x + 6 = 0")
+      screen.getByPlaceholderText(/e\.g\./i)
     ).toBeInTheDocument();
   });
 
@@ -32,6 +32,6 @@ describe("Dashboard Page", () => {
   test("switches to image input when image tab is clicked", () => {
     render(<DashboardPage />);
     fireEvent.click(screen.getByRole("button", { name: /Image/i }));
-    expect(screen.getByText("Upload an image")).toBeInTheDocument();
+    expect(screen.getByText("Drop your image here")).toBeInTheDocument();
   });
 });
