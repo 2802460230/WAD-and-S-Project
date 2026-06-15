@@ -206,7 +206,35 @@ Contributions must match GitHub commit history.
 
 # 13. AI Usage Disclosure (MANDATORY) <br />
 
+List: 
+• AI tools used (e.g., ChatGPT, OpenAI API) 
+• Purpose of usage 
+• Which parts were assisted 
+Example: 
+“ChatGPT was used to assist with API structure and AI testing scenario generation. All 
+code was reviewed and modified by the team.” 
 
+
+# 14. Known Limitations & Future Improvements <br />
+• Current limitations <br />
+• Possible future enhancements <br />
+• AI limitations and risks <br />
+
+
+# 15. Final Declaration <br /> 
+We declare that: <br />
+• This project is our own work <br />
+• AI usage is disclosed honestly <br />
+• All group members understand the system (except Edward) <br />
+Signed by Group Members: <br />
+• Darrus Loamayer <br />
+• Edward Liandi <br />
+
+
+# 16. SETUP <br />
+
+
+# 17. DEPLOYMENT INSTRUCTIONS <br />
 
 
 
