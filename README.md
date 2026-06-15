@@ -187,24 +187,28 @@ https://e2526-wads-b4ac-04.csbihub.id
 # 12. GitHub Contribution Summary (INDIVIDUAL) <br />
 Each student must list their own contribution.
 
-Student Name: Darrus Loamayer
-• Features implemented: [insert here]
-• API endpoints handled: [insert here]
-• Tests written: [insert here]
-• Security work: [insert here]
-• AI-related work: [insert here]
+Student Name: Darrus Loamayer <br />
+• Features implemented: [insert here] <br />
+• API endpoints handled: [insert here] <br />
+• Tests written: [insert here] <br />
+• Security work: [insert here] <br />
+• AI-related work: [insert here] <br />
 
-Student Name: Edward Liandi 
-• Features implemented: None
-• API endpoints handled: None
-• Tests written: None
-• Security work: None
-• AI-related work: None
+Student Name: Edward Liandi <br />
+• Features implemented: None <br />
+• API endpoints handled: None <br />
+• Tests written: None <br />
+• Security work: None <br />
+• AI-related work: None <br />
 
 Contributions must match GitHub commit history. 
 
 
 # 13. AI Usage Disclosure (MANDATORY) <br />
+
+
+
+
 
 
 
