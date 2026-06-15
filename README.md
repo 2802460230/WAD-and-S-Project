@@ -88,12 +88,13 @@ API keys: Stored in environment variables, never exposed to client
 |PUT | | | Yes / No |
 |DELETE | | | Yes / No |
 
+## 6.2 API Documentation <br />
+
+Swagger / Postman Link (if available):
+Example request & response (JSON):
 
 
-
-
-
-
+# 7. Database Design <br />
 
 
 
