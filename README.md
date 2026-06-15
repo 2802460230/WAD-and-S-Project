@@ -90,7 +90,7 @@ API keys: Stored in environment variables, never exposed to client
 
 ## 6.2 API Documentation <br />
 
-Swagger / Postman Link (if available):
+Swagger / Postman Link (if available): <br />
 Example request & response (JSON):
 
 
