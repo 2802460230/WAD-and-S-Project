@@ -42,23 +42,23 @@ Briefly describe: <br />
 • Why this solution is appropriate <br />
 • Where AI is used <br />
 
-# 4. Technology Stack
-Frontend: Next.js 14
-Backend: Next.js 14
-API: REST via Next.js API routes
-Database: PostgreSQL + Prisma
-Container: Docker + docker-compose
-Deployment: Unsure
-Version Control: GitHub
-AI: Google Gemini API (free)
-Auth: JWT
-DNS: Cloudflare
+# 4. Technology Stack <br />
+Frontend: Next.js 14 <br />
+Backend: Next.js 14 <br />
+API: REST via Next.js API routes <br />
+Database: PostgreSQL + Prisma <br />
+Container: Docker + docker-compose <br />
+Deployment: Unsure <br />
+Version Control: GitHub <br />
+AI: Google Gemini API (free) <br />
+Auth: JWT <br />
+DNS: Cloudflare <br />
 
-# 5. System Architecture
+# 5. System Architecture <br />
 ## 5.1 Architecture Diagram
 <img width="738" height="659" alt="image" src="https://github.com/user-attachments/assets/7cf17931-312f-450f-8501-61b588a366c4" />
 
-## 5.2 Architecture Explanation
+## 5.2 Architecture Explanation <br />
 
 Frontend ↔ API ↔ Database Interaction:
 User submits a math problem (text or image) through the Next.js frontend. The request goes to API routes, which validate the input and authenticate the user via JWT. If it's an image, OCR extracts the text. The problem is saved to PostgreSQL using Prisma, then sent to OpenAI API for solving. The solution is stored in the database and returned to the user.
