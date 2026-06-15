@@ -10,6 +10,10 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -94,6 +98,47 @@ export default function ProfilePage() {
     }
   };
 
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (newPassword !== confirmPassword) {
+      setError("New passwords do not match");
+      return;
+    }
+    if (newPassword.length < 8) {
+      setError("New password must be at least 8 characters");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Failed to change password");
+        return;
+      }
+
+      setIsChangingPassword(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setSuccess("Password changed successfully");
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLogout = () => {
     document.cookie = "token=; path=/; max-age=0";
     localStorage.removeItem("user");
@@ -166,8 +211,10 @@ export default function ProfilePage() {
 
               {/* Account actions */}
               <div className="mt-8 flex flex-wrap justify-center gap-4">
-                {/* Visual only — no change-password endpoint wired yet */}
-                <button className="inline-flex items-center gap-2 rounded-full bg-surface-2 px-7 py-3.5 text-sm font-semibold text-ink ring-1 ring-line transition hover:ring-brand">
+                <button
+                  onClick={() => { setIsChangingPassword(true); setError(""); setSuccess(""); }}
+                  className="inline-flex items-center gap-2 rounded-full bg-surface-2 px-7 py-3.5 text-sm font-semibold text-ink ring-1 ring-line transition hover:ring-brand"
+                >
                   <Lock className="size-4" /> Change Password
                 </button>
                 <button
@@ -177,6 +224,63 @@ export default function ProfilePage() {
                   <LogOut className="size-4" /> Log Out
                 </button>
               </div>
+
+              {isChangingPassword && (
+                <form onSubmit={handleChangePassword} className="mt-6 max-w-xl space-y-4 rounded-2xl bg-surface p-6 ring-1 ring-line">
+                  <h3 className="font-semibold text-ink">Change Password</h3>
+                  <div>
+                    <label className="mb-2 block text-[15px] font-semibold text-ink">Current Password</label>
+                    <input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      autoComplete="current-password"
+                      className="w-full rounded-2xl bg-[var(--surface-2)] px-5 py-4 text-[15px] text-ink outline-none ring-1 ring-line transition focus:ring-2 focus:ring-brand"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-[15px] font-semibold text-ink">New Password</label>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      autoComplete="new-password"
+                      className="w-full rounded-2xl bg-[var(--surface-2)] px-5 py-4 text-[15px] text-ink outline-none ring-1 ring-line transition focus:ring-2 focus:ring-brand"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-[15px] font-semibold text-ink">Confirm New Password</label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      autoComplete="new-password"
+                      className="w-full rounded-2xl bg-[var(--surface-2)] px-5 py-4 text-[15px] text-ink outline-none ring-1 ring-line transition focus:ring-2 focus:ring-brand"
+                    />
+                  </div>
+                  {error && (
+                    <p className="rounded-xl bg-rose-500/10 px-4 py-3 text-sm font-medium text-rose-600 dark:text-rose-300">
+                      {error}
+                    </p>
+                  )}
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="rounded-full bg-brand px-7 py-3.5 text-sm font-bold text-brand-ink transition hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {loading ? "Saving…" : "Update Password"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setIsChangingPassword(false); setCurrentPassword(""); setNewPassword(""); setConfirmPassword(""); setError(""); }}
+                      className="rounded-full bg-surface-2 px-7 py-3.5 text-sm font-semibold text-ink ring-1 ring-line transition hover:ring-brand"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
             </>
           ) : (
             /* Edit mode */

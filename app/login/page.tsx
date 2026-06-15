@@ -80,6 +80,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@gmail.com"
+              autoComplete="off"
               className={fieldClass}
             />
           </div>
@@ -94,6 +95,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
+              autoComplete="new-password"
               className={fieldClass}
             />
           </div>

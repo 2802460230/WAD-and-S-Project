@@ -67,10 +67,6 @@ export default function HistoryPage() {
           <span className="rounded-full bg-mint px-4 py-2 text-sm font-semibold text-mint-ink">
             Step-by-step
           </span>
-          {/* Visual only — no export endpoint wired yet */}
-          <button className="rounded-full bg-surface px-5 py-2 text-sm font-semibold text-ink ring-1 ring-line transition hover:ring-brand">
-            Export
-          </button>
           <span className="relative grid size-10 place-items-center rounded-full text-ink/70">
             <Bell className="size-5" />
             <span className="absolute right-2 top-2 size-2 rounded-full bg-rose-500" />

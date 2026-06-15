@@ -39,6 +39,27 @@ export async function registerUser(email: string, password: string) {
   }
 }
 
+export async function changePassword(userId: string, currentPassword: string, newPassword: string) {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      return { success: false, error: "User not found" };
+    }
+
+    const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!valid) {
+      return { success: false, error: "Current password is incorrect" };
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
+
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to change password" };
+  }
+}
+
 export async function loginUser(email: string, password: string) {
   try {
     const user = await prisma.user.findUnique({

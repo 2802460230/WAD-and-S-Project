@@ -78,6 +78,23 @@ export async function getUserBookmarks(userId: string) {
   }
 }
 
+export async function deleteBookmark(userId: string, bookmarkId: string) {
+  try {
+    const bookmark = await prisma.bookmark.findUnique({
+      where: { id: bookmarkId },
+    });
+
+    if (!bookmark || bookmark.userId !== userId) {
+      return { success: false, error: "Bookmark not found" };
+    }
+
+    await prisma.bookmark.delete({ where: { id: bookmarkId } });
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to delete bookmark" };
+  }
+}
+
 export async function updateUserProfile(
   userId: string,
   name: string,

@@ -24,6 +24,7 @@ export default function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState<BookmarkedProblem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -46,6 +47,24 @@ export default function BookmarksPage() {
 
     fetchBookmarks();
   }, []);
+
+  const handleDelete = async (e: React.MouseEvent, bookmarkId: string) => {
+    e.stopPropagation();
+    setDeletingId(bookmarkId);
+    try {
+      const response = await fetch(`/api/bookmarks/${bookmarkId}`, { method: "DELETE" });
+      if (response.ok) {
+        setBookmarks((prev) => prev.filter((b) => b.id !== bookmarkId));
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to delete bookmark");
+      }
+    } catch {
+      setError("Failed to delete bookmark");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleBookmarkClick = (bookmark: BookmarkedProblem) => {
     if (bookmark.problem?.solution) {
@@ -119,6 +138,14 @@ export default function BookmarksPage() {
                     <span className="shrink-0 text-sm text-muted">
                       {formatDate(bookmark.problem.createdAt)}
                     </span>
+                    <button
+                      onClick={(e) => handleDelete(e, bookmark.id)}
+                      disabled={deletingId === bookmark.id}
+                      aria-label="Remove bookmark"
+                      className="ml-1 grid size-8 shrink-0 place-items-center rounded-lg text-muted transition hover:bg-rose-500/10 hover:text-rose-500 disabled:opacity-40"
+                    >
+                      <Trash className="size-4" />
+                    </button>
                   </div>
                 );
               })}
@@ -180,4 +207,7 @@ function Triangle({ className = "" }: Icn) {
 }
 function Chart({ className = "" }: Icn) {
   return (<svg {...sv} className={className}><path d="M5 21V10M12 21V4M19 21v-7" /></svg>);
+}
+function Trash({ className = "" }: Icn) {
+  return (<svg {...sv} className={className}><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" /></svg>);
 }
