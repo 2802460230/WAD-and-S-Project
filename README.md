@@ -54,6 +54,7 @@ AI: Google Gemini API (free)
 Auth: JWT
 DNS: Cloudflare
 
+# 5. System Architecture
 ## 5.1 Architecture Diagram
 <img width="738" height="659" alt="image" src="https://github.com/user-attachments/assets/7cf17931-312f-450f-8501-61b588a366c4" />
 
