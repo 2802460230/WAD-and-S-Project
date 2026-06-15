@@ -39,6 +39,7 @@
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/swagger-jsdoc": "^6.0.4",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "jest": "^30.3.0",
