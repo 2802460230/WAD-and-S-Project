@@ -1,6 +1,6 @@
+import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
 import RegisterPage from "../app/register/page";
-import "@testing-library/jest-dom";
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -22,7 +22,7 @@ describe("Register Page", () => {
 
   test("shows error when email format is invalid", () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText("you@gmail.com"), {
+    fireEvent.change(screen.getByLabelText("Email Address"), {
       target: { value: "notanemail" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Register" }));
@@ -33,7 +33,7 @@ describe("Register Page", () => {
 
   test("shows error when password is empty", () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText("you@gmail.com"), {
+    fireEvent.change(screen.getByLabelText("Email Address"), {
       target: { value: "test@email.com" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Register" }));
@@ -42,10 +42,10 @@ describe("Register Page", () => {
 
   test("shows error when password is less than 8 characters", () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText("you@gmail.com"), {
+    fireEvent.change(screen.getByLabelText("Email Address"), {
       target: { value: "test@email.com" },
     });
-    fireEvent.change(screen.getAllByPlaceholderText("••••••••")[0], {
+    fireEvent.change(screen.getByLabelText("Password"), {
       target: { value: "short" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Register" }));
@@ -56,13 +56,13 @@ describe("Register Page", () => {
 
   test("shows error when passwords do not match", () => {
     render(<RegisterPage />);
-    fireEvent.change(screen.getByPlaceholderText("you@gmail.com"), {
+    fireEvent.change(screen.getByLabelText("Email Address"), {
       target: { value: "test@email.com" },
     });
-    fireEvent.change(screen.getAllByPlaceholderText("••••••••")[0], {
+    fireEvent.change(screen.getByLabelText("Password"), {
       target: { value: "password123" },
     });
-    fireEvent.change(screen.getAllByPlaceholderText("••••••••")[1], {
+    fireEvent.change(screen.getByLabelText("Confirm Password"), {
       target: { value: "differentpassword" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Register" }));
