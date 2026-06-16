@@ -180,8 +180,12 @@ export default function DashboardPage() {
                   onChange={(e) => setProblem(e.target.value)}
                   placeholder="e.g.  Solve x² + 5x + 6 = 0"
                   rows={5}
+                  maxLength={500}
                   className="w-full resize-none rounded-2xl bg-surface px-6 py-5 font-mono text-[15px] text-ink placeholder:text-muted/70 outline-none ring-1 ring-line transition focus:ring-2 focus:ring-brand"
                 />
+                <p className={`mt-1.5 text-right text-xs ${problem.length >= 450 ? "text-rose-500" : "text-muted"}`}>
+                  {problem.length}/500
+                </p>
 
                 <p className="mb-3 mt-6 text-sm text-muted">Try an example:</p>
                 <div className="flex flex-wrap gap-3">

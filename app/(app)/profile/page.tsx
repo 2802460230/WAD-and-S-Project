@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+
 const MATH_TOPICS = new Set(["algebra", "calculus", "geometry", "statistics"]);
 
 export default function ProfilePage() {
@@ -17,6 +18,7 @@ export default function ProfilePage() {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [problemCount, setProblemCount] = useState<number | null>(null);
   const [bookmarkCount, setBookmarkCount] = useState<number | null>(null);
 
@@ -55,8 +57,7 @@ export default function ProfilePage() {
       }
     };
 
-    fetchProfile();
-    fetchCounts();
+    Promise.all([fetchProfile(), fetchCounts()]).finally(() => setPageLoading(false));
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -166,6 +167,30 @@ export default function ProfilePage() {
 
       <main className="flex-1 px-6 py-8 md:px-10 md:py-10">
         <div className="mx-auto max-w-4xl">
+          {pageLoading && (
+            <div>
+              <div className="flex items-center gap-5 mb-7">
+                <div className="animate-pulse size-20 rounded-full bg-surface-2" />
+                <div className="flex-1 space-y-3">
+                  <div className="animate-pulse h-6 w-40 rounded bg-surface-2" />
+                  <div className="animate-pulse h-4 w-56 rounded bg-surface-2" />
+                  <div className="animate-pulse h-5 w-20 rounded-full bg-surface-2" />
+                </div>
+              </div>
+              <hr className="my-7 border-line" />
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                {[0, 1].map((i) => (
+                  <div key={i} className="animate-pulse rounded-2xl bg-surface px-4 py-6 ring-1 ring-line">
+                    <div className="mx-auto h-8 w-12 rounded bg-surface-2 mb-2" />
+                    <div className="mx-auto h-3 w-20 rounded bg-surface-2" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {!pageLoading && (
+          <>
           {/* Identity row */}
           <div className="flex flex-wrap items-center gap-5">
             <span className="grid size-20 place-items-center rounded-full bg-brand/10 font-display text-2xl font-bold text-brand ring-2 ring-brand">
@@ -329,6 +354,8 @@ export default function ProfilePage() {
                 </button>
               </div>
             </form>
+          )}
+          </>
           )}
         </div>
       </main>

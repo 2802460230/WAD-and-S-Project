@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+
 interface Problem {
   id: string;
   content: string;
@@ -93,7 +94,19 @@ export default function HistoryPage() {
             ))}
           </div>
 
-          {loading && <p className="text-muted">Loading history…</p>}
+          {loading && (
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="animate-pulse flex items-center gap-4 rounded-2xl bg-surface px-5 py-4 ring-1 ring-line">
+                  <div className="size-11 rounded-xl bg-surface-2" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-24 rounded bg-surface-2" />
+                    <div className="h-4 w-48 rounded bg-surface-2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {error && (
             <p className="rounded-xl bg-rose-500/10 px-4 py-3 text-sm font-medium text-rose-600 dark:text-rose-300">
@@ -102,11 +115,22 @@ export default function HistoryPage() {
           )}
 
           {!loading && !error && history.length === 0 && (
-            <p className="text-muted">No problems solved yet.</p>
+            <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-line bg-surface-2/50 px-6 py-20 text-center">
+              <Clock className="size-8 text-muted" />
+              <p className="text-lg font-semibold text-ink">Nothing here yet</p>
+              <p className="text-sm text-muted">Go solve some problems — your history will show up here.</p>
+              <a href="/dashboard" className="mt-2 rounded-full bg-brand px-6 py-3 text-sm font-bold text-brand-ink transition hover:bg-brand-strong">
+                Start Solving
+              </a>
+            </div>
           )}
 
           {!loading && !error && history.length > 0 && rows.length === 0 && (
-            <p className="text-muted">No problems in this category.</p>
+            <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-line bg-surface-2/50 px-6 py-20 text-center">
+              <Clock className="size-8 text-muted" />
+              <p className="text-lg font-semibold text-ink">No problems in this category</p>
+              <p className="text-sm text-muted">Try a different filter or go solve one!</p>
+            </div>
           )}
 
           {!loading && rows.length > 0 && (
@@ -178,6 +202,9 @@ const sv = {
 };
 function Bell({ className = "" }: Icn) {
   return (<svg {...sv} className={className}><path d="M6 9a6 6 0 1 1 12 0c0 4 1.5 5 1.5 5h-15S6 13 6 9z" /><path d="M10 18a2 2 0 0 0 4 0" /></svg>);
+}
+function Clock({ className = "" }: Icn) {
+  return (<svg {...sv} className={className}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>);
 }
 function ChevronRight({ className = "" }: Icn) {
   return (<svg {...sv} className={className}><path d="M9 6l6 6-6 6" /></svg>);

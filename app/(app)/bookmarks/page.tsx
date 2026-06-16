@@ -92,7 +92,19 @@ export default function BookmarksPage() {
 
       <main className="flex-1 px-6 py-8 md:px-10 md:py-10">
         <div className="mx-auto max-w-4xl">
-          {loading && <p className="text-muted">Loading bookmarks…</p>}
+          {loading && (
+            <div className="space-y-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="animate-pulse flex items-center gap-4 rounded-2xl bg-surface px-5 py-4 ring-1 ring-line">
+                  <div className="size-11 rounded-xl bg-surface-2" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-24 rounded bg-surface-2" />
+                    <div className="h-4 w-48 rounded bg-surface-2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {error && (
             <p className="rounded-xl bg-rose-500/10 px-4 py-3 text-sm font-medium text-rose-600 dark:text-rose-300">
@@ -103,8 +115,8 @@ export default function BookmarksPage() {
           {!loading && !error && bookmarks.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-line bg-surface-2/50 px-6 py-20 text-center">
               <Bookmark className="size-8 text-muted" />
-              <p className="text-lg font-semibold text-ink">No bookmarks yet</p>
-              <p className="text-sm text-muted">Solve a problem and bookmark it to save it here</p>
+              <p className="text-lg font-semibold text-ink">Nothing bookmarked yet</p>
+              <p className="text-sm text-muted">Go solve some problems and bookmark the ones you want to revisit!</p>
               <Link
                 href="/dashboard"
                 className="mt-2 rounded-full bg-brand px-6 py-3 text-sm font-bold text-brand-ink transition hover:bg-brand-strong"
