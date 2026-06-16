@@ -136,6 +136,10 @@ Swagger UI is available at the live application:
 
 https://e2526-wads-b4ac-04.csbihub.id/api-docs
 
+Postman link is also available however may not be public
+
+https://darrusloamayer-8240710.postman.co/workspace/Darrus-Loamayer's-Workspace~a8d8fbd4-d6c8-4ba5-8829-fbca821b922b/collection/53969084-4c5ee9e4-3c62-4ef3-a08e-ebb59268d8c3?action=share&source=copy-link&creator=53969084
+
 **Example — POST /api/auth/login:**
 
 Request:
@@ -203,43 +207,7 @@ PostgreSQL was chosen over MongoDB and Firebase for the following reasons:
 
 ## 7.2 Schema / Data Structure
 
-**User** — stores account credentials and role
-```
-id, email, passwordHash, name, role, createdAt, updatedAt
-```
-
-**Problem** — stores submitted math problems
-```
-id, userId, content, inputType, topic, createdAt
-```
-
-**Solution** — stores AI-generated solutions linked to problems
-```
-id, problemId, steps (JSON), topic, createdAt
-```
-
-**Bookmark** — links users to saved problems
-```
-id, userId, problemId, createdAt
-unique constraint: userId + problemId
-```
-
-**Feedback** — stores user ratings on solutions
-```
-id, userId, solutionId, rating, comment, createdAt
-```
-
-**ImageUpload** — stores metadata for uploaded images
-```
-id, problemId, filename, fileType, fileSize, uploadedAt
-```
-
-**Relationships:**
-- User → has many Problems, Bookmarks, Feedbacks
-- Problem → belongs to User, has one Solution, has many Bookmarks
-- Solution → belongs to Problem, has many Feedbacks
-
----
+<img width="1120" height="572" alt="mathmentor-erd drawio" src="https://github.com/user-attachments/assets/ff6e3620-e699-4371-aed4-b0c00b1065ff" />
 
 # 8. AI Features
 
@@ -540,7 +508,7 @@ Contributions match GitHub commit history.
 
 # 13. AI Usage Disclosure
 
-Claude (Anthropic) was used throughout this project as a development assistant for architecture planning, code generation, debugging, and documentation writing. All generated code was reviewed, tested, and adapted to the specific requirements of this project. The student understands all implemented code and can explain every component.
+Claude was used extensively throughout the project with major supervision in order to assist design and write manual code. All generated code was reviewed, tested, and adapted to the specific requirements of this project. The student understands the code and its functionalities.
 
 Groq API is used as the AI service powering the application's math solving, OCR, hint generation, and practice problem features.
 
