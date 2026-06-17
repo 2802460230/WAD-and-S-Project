@@ -60,6 +60,22 @@ export async function changePassword(userId: string, currentPassword: string, ne
   }
 }
 
+export async function resetPassword(email: string, newPassword: string) {
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return { success: false, error: "No account found with that email" };
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
+
+    return { success: true };
+  } catch {
+    return { success: false, error: "Failed to reset password" };
+  }
+}
+
 export async function loginUser(email: string, password: string) {
   try {
     const user = await prisma.user.findUnique({

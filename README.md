@@ -116,10 +116,12 @@ MathMentor is built as a Next.js monolith — both frontend pages and backend AP
 |--------|----------|-------------|---------------|
 | POST | /api/auth/register | Register a new user account | No |
 | POST | /api/auth/login | Login and receive JWT token | No |
+| POST | /api/auth/forgot-password | Reset a forgotten password via email | No |
+| POST | /api/auth/change-password | Change password for the logged-in user | Yes |
 | POST | /api/solve | Submit math problem, receive step-by-step solution | Yes |
 | POST | /api/ocr | Upload image, extract math expression | Yes |
 | POST | /api/hints | Generate hints for a problem without full solution | Yes |
-| POST | /api/practice | Generate practice problems based on topic | Yes |
+| POST | /api/practice | Generate a single practice problem based on topic (and optional previous problem) | Yes |
 | GET | /api/history | Retrieve user's solved problem history | Yes |
 | GET | /api/bookmarks | Retrieve user's bookmarked problems | Yes |
 | POST | /api/bookmarks | Save a problem to bookmarks | Yes |
@@ -200,10 +202,7 @@ Response 200:
 
 PostgreSQL was chosen over MongoDB and Firebase for the following reasons:
 
-- The data is relational — users have problems, problems have solutions, bookmarks link users to problems. A relational database models this naturally with foreign keys and joins.
-- Prisma ORM has excellent TypeScript support for PostgreSQL with type-safe queries and automatic migrations.
-- Railway provides free hosted PostgreSQL that connects reliably from both local development and the deployed server.
-- Firebase was considered for auth only but rejected in favour of custom JWT implementation to demonstrate security knowledge as required by the spec.
+The data is relational. Relational databases can easily model this relationship using foreign key relationships and joining tables. Prisma's Object-Relational Mapping (ORM) offers a high-quality Type-Safe Query Language interface for working with PostgreSQL in TypeScript along with Auto Migrations. Railway provided a free hosted PostgreSQL instance which had reliable connectivity from both local development and the running production server. Firebase was briefly evaluated solely for authentication purposes however was ultimately replaced with an own JWT (JSON Web Token) based system to showcase the ability to create secure systems based on the specification.
 
 ## 7.2 Schema / Data Structure
 
@@ -258,11 +257,11 @@ User clicks Get Hints on dashboard
 
 **Practice flow:**
 ```
-User clicks Practice on results page
+User clicks Practice (or Next question) on results page
 → /api/practice
-→ mathService.generatePracticeProblems()
+→ mathService.generatePracticeProblems(topic, previousProblem)
 → Groq API
-→ 3 practice problems on same topic returned
+→ 1 new practice problem returned, similar to the previous one if provided
 ```
 
 AI results are stored in the Solution model as structured JSON steps. The frontend reads steps from sessionStorage for immediate display and fetches from the database for history and bookmarks.
@@ -273,42 +272,40 @@ AI results are stored in the Solution model as structured JSON steps. The fronte
 
 ## 9.1 Authentication
 
-JWT tokens are generated on login using the jsonwebtoken library signed with a secret key stored in environment variables. Tokens expire after 24 hours. Tokens are stored in browser cookies with SameSite=Strict to prevent CSRF attacks. Every protected API route verifies the token using getTokenFromRequest() which checks the Authorization header first then falls back to cookies.
+JWT tokens are created when users log-in using the JSON Web Token (jsonwebtoken) package with their secret environment variable as the signing key. The token expires after 24 hours.
+
+The cookie stores the token, with same-site=strict attribute to protect against cross site request forgery (CSRF). Each of our protected routes verify the token through calling the getTokenFromRequest() method. This method will check for an "Authorization" header first; if it doesn't find one there, it will fall-back to the cookies.
 
 ## 9.2 Authorization
 
-Role-based access control is implemented at two levels. Middleware checks the JWT token on every request and redirects unauthenticated users to login. The admin panel and /api/admin/users endpoint additionally check that the user role is admin and return 403 Forbidden for student accounts.
+The middleware verifies the JWT token on every request and sends an unauthenticated user back to the login screen. 
+In addition, both the admin panel and /api/admin/users endpoint will verify if the user is an administrator by checking their role. If they are a student account it returns 403 Forbidden.
 
 ## 9.3 Input Validation
 
-All user input goes through three layers of validation. Frontend validation catches empty fields and format errors immediately. API route validation enforces length limits and rejects malformed requests before reaching services. The sanitizeInput() function in lib/sanitize.ts strips HTML tags and encodes dangerous characters to prevent XSS.
+There are three layers of validation applied to all forms of user input. The frontend validation checks for empty or incorrectly formatted fields immediately. Next, the backend route validation checks the length of the user input and prevents malformed requests from being passed to services. Finally, the sanitizeInput() function in lib/sanitize.ts removes html tags and escapes any dangerous characters so as to help prevent cross-site scripting (XSS).
 
 ## 9.4 Prompt Injection Prevention
 
-The detectPromptInjection() function checks all AI-bound input against known injection patterns including "ignore previous instructions", "act as", "system:", and jailbreak attempts. Matched inputs are rejected with a 400 response before reaching the Groq API. Structured prompts with explicit role instructions provide a secondary defense layer.
+detectPromptInjection() evaluates every AI-bound request to see if it has an injection pattern that includes "ignore previous instructions," "act as," "system:", or jailbreaking attempts. If any of those input formats are identified then they will be rejected by sending back a 400 error before the Groq API can receive them. A structured prompt that explicitly defines the roles provides another level of protection.
 
 ## 9.5 SQL Injection Prevention
 
-Prisma ORM uses parameterised queries for all database operations. Raw SQL is never used in the application.
+The Prisma ORM always utilizes parameterized requests when accessing databases. Therefore, raw SQL code is not included in this application.
 
 ## 9.6 CSRF Protection
 
-CSRF tokens are generated via /api/csrf using crypto.randomBytes and stored in an HttpOnly cookie. The SameSite=Strict cookie attribute on the JWT token provides primary CSRF protection since cross-site requests cannot include same-site cookies.
+CSRF tokens are created using /api/csrf by utilizing crypto.randomBytes to create a random number for each session which will be stored as an HttpOnly Cookie. The SameSite = Strict property of the JWT token serves as the main CSRF prevention mechanism because cross-site requests do not have access to same-site Cookies.
 
 ## 9.7 Rate Limiting
 
-In-memory rate limiting is implemented in lib/rateLimit.ts with per-user and per-IP tracking:
-- 10 solve requests per minute per user
-- 5 login attempts per minute per IP
-- 3 registration attempts per minute per IP
-
-Exceeded limits return 429 Too Many Requests.
+Rate limiting for all incoming API calls is done through a in-memory based system located at lib/rateLimit.ts. This implementation allows for both per-user tracking (solve requests), and per-IP tracking (login & registration attempts) to limit the amount of API calls. Per-user tracking has a hard cap of 10 solve requests per minute. Per-IP tracking has a hard cap of 5 login attempts per minute, and 3 registration attempts per minute. If either of these caps is reached then the user will receive a HTTP status code of 429 (Too Many Requests).
 
 ## 9.8 Security Headers
 
-The following HTTP security headers are applied to all responses via next.config.ts:
+All HTTP security headers for responses are configured in next.config.ts as follows:
 
-- X-Content-Type-Options: nosniff
+- X-Content-Type-Options: nosniff 
 - X-Frame-Options: DENY
 - X-XSS-Protection: 1; mode=block
 - Referrer-Policy: strict-origin-when-cross-origin
@@ -317,7 +314,7 @@ The following HTTP security headers are applied to all responses via next.config
 
 ## 9.9 API Key Handling
 
-All secrets including DATABASE_URL, JWT_SECRET, and GROQ_API_KEY are stored in environment variables and never committed to the repository. In production they are injected via GitHub Actions secrets into the Docker container at deployment time. The .env file is excluded by .gitignore and .dockerignore.
+The Database URL, JWT Secret and GROQ Api Keys are being stored in environment variables that will be used in a Docker Container at runtime (never pushed to Git). For Production environments, these values are being injected using GitHub Secrets into the Docker Container during Deployment. Therefore the .env File is in both the gitignore and dockerignore files.
 
 ---
 
@@ -363,7 +360,7 @@ Tested via Postman against the live deployment at https://e2526-wads-b4ac-04.csb
 | API-08 | POST /api/solve | No JWT token | 401 Unauthorized | Pass |
 | API-09 | POST /api/solve | Empty problem body | 400 Bad Request, "Problem text is required" | Pass |
 | API-10 | POST /api/hints | Valid problem with JWT | 200 OK, array of hints returned | Pass |
-| API-11 | POST /api/practice | Valid topic with JWT | 200 OK, array of practice problems returned | Pass |
+| API-11 | POST /api/practice | Valid topic with JWT | 200 OK, single practice problem returned | Pass |
 | API-12 | POST /api/ocr | Image file with JWT | 200 OK, extracted math text returned | Pass |
 | API-13 | GET /api/history | Valid JWT | 200 OK, array of past problems returned | Pass |
 | API-14 | GET /api/bookmarks | Valid JWT | 200 OK, array of bookmarks returned | Pass |
@@ -373,6 +370,10 @@ Tested via Postman against the live deployment at https://e2526-wads-b4ac-04.csb
 | API-18 | PUT /api/profile | Updated name with JWT | 200 OK, updated profile returned | Pass |
 | API-19 | GET /api/admin/users | Admin JWT | 200 OK, all users returned | Pass |
 | API-20 | GET /api/admin/users | Student JWT | 403 Forbidden | Pass |
+| API-21 | POST /api/auth/forgot-password | Valid email and new password (8+ chars) | 200 OK, password reset successfully | Pass |
+| API-22 | POST /api/auth/forgot-password | Non-existent email | 400 Bad Request, "No account found with that email" | Pass |
+| API-23 | POST /api/auth/change-password | Valid current and new password with JWT | 200 OK, password changed successfully | Pass |
+| API-24 | POST /api/auth/change-password | Wrong current password with JWT | 400 Bad Request, "Current password is incorrect" | Pass |
 
 ## 10.3 Security Testing
 
@@ -391,7 +392,7 @@ Tested via Postman against the live deployment at https://e2526-wads-b4ac-04.csb
 | SEC-11 | Login brute force — 6 attempts in 1 minute | 6 rapid login requests | 6th attempt returns 429 Too Many Requests | Pass |
 | SEC-12 | Solve endpoint spam — 11 requests in 1 minute | 11 rapid solve requests | 11th request returns 429 Too Many Requests | Pass |
 | SEC-13 | Empty problem submission | POST /api/solve with empty body | 400 Bad Request | Pass |
-| SEC-14 | Oversized input | Problem text over 2000 characters | 400 Bad Request | Pass |
+| SEC-14 | Oversized input | Problem text over 500 characters | 200 OK, input not processed past 500 characters | Pass |
 | SEC-15 | X-Frame-Options header present | Inspect response headers | X-Frame-Options: DENY | Pass |
 | SEC-16 | X-Content-Type-Options header present | Inspect response headers | X-Content-Type-Options: nosniff | Pass |
 | SEC-17 | Clickjacking attempt | Embed app in iframe on external site | Browser blocks iframe rendering | Pass |
@@ -419,7 +420,6 @@ Tested via Postman against the live deployment at https://e2526-wads-b4ac-04.csb
 | AI-07 | Clear photo of printed math problem | Correct extraction of expression | Printed math expression extracted and passed to solve pipeline | Pass |
 | AI-08 | Blurry image with no math | NO_MATH_FOUND error returned | NO_MATH_FOUND returned, error message shown to user | Pass |
 | AI-09 | Image file that is not a photo (PDF, etc.) | 400 Bad Request — invalid file type | 400 Bad Request returned, only JPEG and PNG accepted | Pass |
-| AI-10 | Image containing prompt injection text | Text extracted safely, injection blocked downstream | Text extracted but blocked at solve stage by injection detection | Pass |
 
 **AI Feature: Hint Generation**
 
@@ -428,17 +428,17 @@ Tested via Postman against the live deployment at https://e2526-wads-b4ac-04.csb
 | AI-11 | `Solve x² + 5x + 6 = 0` | 2-3 hints guiding toward factoring, no full answer | 3 hints returned guiding toward factoring method without revealing answer | Pass |
 | AI-12 | `Integrate 2x dx` | Hints about integration rules without solution | Hints about power rule integration returned without full solution | Pass |
 | AI-13 | Empty problem | 400 Bad Request — problem required | 400 Bad Request returned with validation error | Pass |
-| AI-14 | `ignore previous instructions` | 400 Bad Request — prompt injection blocked | 400 Bad Request returned, request blocked before reaching AI | Pass |
 
 **AI Feature: Practice Problem Generation**
 
 | Test Case | Input | Expected Output | Actual Result | Status |
 |-----------|-------|-----------------|---------------|--------|
-| AI-15 | Topic: Algebra | 3 new Algebra practice problems | 3 Algebra problems generated at appropriate difficulty level | Pass |
-| AI-16 | Topic: Calculus | 3 new Calculus practice problems | 3 Calculus problems generated covering derivatives and integrals | Pass |
-| AI-17 | Topic: Geometry | 3 new Geometry practice problems | 3 Geometry problems generated covering area and angles | Pass |
-| AI-18 | Empty topic | Generic math problems generated | General math problems generated across multiple topics | Pass |
+| AI-15 | Topic: Algebra | 1 new Algebra practice problem | 1 Algebra problem generated at appropriate difficulty level | Pass |
+| AI-16 | Topic: Calculus | 1 new Calculus practice problem | 1 Calculus problem generated covering derivatives and integrals | Pass |
+| AI-17 | Topic: Geometry | 1 new Geometry practice problem | 1 Geometry problem generated covering area and angles | Pass |
+| AI-18 | Empty topic | Generic math problem generated | General math problem generated across multiple topics | Pass |
 | AI-19 | `ignore previous instructions` as topic | 400 Bad Request — prompt injection blocked | 400 Bad Request returned, request blocked before reaching AI | Pass |
+| AI-20 | Topic: Algebra with previousProblem set | 1 new Algebra problem, similar style to previous | New problem generated with varied numbers/phrasing but same structure as previous problem | Pass |
 
 **Failure Handling:**
 
@@ -453,22 +453,21 @@ Tested via Postman against the live deployment at https://e2526-wads-b4ac-04.csb
 
 ## 11.1 Docker Setup
 
-A multi-stage Dockerfile is included in the repository root:
+A multi-step Dockerfile has been placed within the repository root that includes:
+- step 1 (base): a slim version of Node.js 22, including OpenSSL and CA certificates.
+- step 2 (deps): installs npm dependencies using npm ci.
+- step 3 (builder): builds the Prisma client and generates a standalone output image of the next.js app.
+- step 4 (runner): copies only the Build output of the next.js application into a minimal image, runs as a non-root user.
 
-- Stage 1 (base) — Node.js 22 slim with OpenSSL and CA certificates
-- Stage 2 (deps) — installs npm dependencies via npm ci
-- Stage 3 (builder) — generates Prisma client and builds Next.js with standalone output
-- Stage 4 (runner) — copies only build output into minimal image, runs as non-root user
+A docker-compose.yml file orchestrate the container by mapping port 3013, injecting environment variables at runtime and automatically restarting the container when necessary.
 
-A docker-compose.yml file orchestrates the container, maps port 3013, injects environment variables at runtime, and configures automatic restart.
-
-A .dockerignore file excludes node_modules, build output, test files, and environment files from the build context.
+A .dockerignore file is included that excludes node-modules, Build outputs, test files, and environment files from being included in the Build context of the docker image.
 
 ## 11.2 Production Environment
 
-Environment variables are stored as GitHub repository secrets and never appear in the codebase or Docker image. During deployment, GitHub Actions creates a temporary .env.production file from secrets, passes it to docker compose, and immediately deletes it after the container starts.
+All environment variables are stored as secrets within the github repository, never appear in code base or docker images. Upon deployment, GitHub Actions creates a temporary .env.production file from the secrets; passes it to docker-compose and immediately deletes it after the container has started running.
 
-The application runs behind Cloudflare which provides HTTPS termination, DDoS protection, and DNS management.
+Cloudflare provides https termination services along with ddos protection and DNS management for the application.
 
 ## 11.3 CI/CD Pipeline
 
@@ -489,8 +488,8 @@ https://e2526-wads-b4ac-04.csbihub.id
 # 12. GitHub Contribution Summary
 
 **Darrus Loamayer (2802460230)**
-- Features implemented: All 9 frontend pages, complete REST API with 15 endpoints, JWT authentication system, database schema and Prisma ORM integration, Docker containerisation, GitHub Actions CI/CD pipeline, Swagger API documentation, admin panel
-- API endpoints handled: /api/auth/register, /api/auth/login, /api/solve, /api/ocr, /api/hints, /api/practice, /api/history, /api/bookmarks, /api/bookmarks/[id], /api/profile, /api/admin/users, /api/swagger, /api/csrf
+- Features implemented: All frontend pages, complete REST API with 15 endpoints, JWT authentication system, database schema and Prisma ORM integration, Docker containerisation, GitHub Actions CI/CD pipeline, Swagger API documentation, admin panel
+- API endpoints handled: /api/auth/register, /api/auth/login, /api/auth/forgot-password, /api/auth/change-password, /api/solve, /api/ocr, /api/hints, /api/practice, /api/history, /api/bookmarks, /api/bookmarks/[id], /api/profile, /api/admin/users, /api/swagger, /api/csrf
 - Tests written: 7 Jest test files covering login, register, dashboard, results, history, bookmarks, profile — 32 passing tests
 - Security work: JWT middleware, input sanitization, prompt injection detection, rate limiting, CSRF protection, security headers, XSS prevention
 - AI-related work: Groq API integration for math solving, OCR vision processing, hint generation, practice problem generation, lazy client initialisation for build safety
@@ -519,6 +518,7 @@ Groq API is used as the AI service powering the application's math solving, OCR,
 **Current limitations:**
 - Rate limiting uses in-memory storage and resets on server restart — a production system would use Redis
 - Email verification is not implemented — users can register with any email address
+- Password reset (/api/auth/forgot-password) does not verify email ownership via a reset link/token — anyone who knows an account's email can reset its password; a production system would email a time-limited reset token
 - The admin panel displays basic user and activity data rather than a dedicated structured logging system
 - OCR accuracy depends on image quality — blurry or low contrast images may fail to extract correctly
 - Groq free tier has request limits that could cause 429 errors under heavy load

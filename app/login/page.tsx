@@ -125,9 +125,9 @@ export default function LoginPage() {
           </p>
 
           <p className="text-center text-sm text-[var(--auth-card-ink)]/50">
-            <button type="button" className="hover:text-[var(--auth-card-ink)]/80 transition">
-              Forgot your password? LMAO
-            </button>
+            <Link href="/forgot-password" className="hover:text-[var(--auth-card-ink)]/80 transition">
+              Forgot your password?
+            </Link>
           </p>
         </form>
       </div>

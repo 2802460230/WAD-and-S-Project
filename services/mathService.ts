@@ -54,16 +54,26 @@ Problem: ${problem}`;
   }
 }
 
-export async function generatePracticeProblems(topic: string) {
-  const prompt = `You are a math tutor. Generate 3 practice problems on the topic of ${topic}.
-Each problem should be at a similar difficulty level to a university student.
+export async function generatePracticeProblems(topic: string, previousProblem?: string) {
+  const prompt = previousProblem
+    ? `You are a math tutor. Generate 1 new practice problem on the topic of ${topic}.
+The new problem should be similar in style and structure to this previous problem, but not identical (vary the numbers, phrasing, or specific setup):
+"${previousProblem}"
+The problem should be at a similar difficulty level to a university student.
 
 Return as raw JSON only, no markdown:
 {
   "problems": [
-    { "id": 1, "problem": "problem text here" },
-    { "id": 2, "problem": "problem text here" },
-    { "id": 3, "problem": "problem text here" }
+    { "id": 1, "problem": "problem text here" }
+  ]
+}`
+    : `You are a math tutor. Generate 1 practice problem on the topic of ${topic}.
+The problem should be at a similar difficulty level to a university student.
+
+Return as raw JSON only, no markdown:
+{
+  "problems": [
+    { "id": 1, "problem": "problem text here" }
   ]
 }`;
 

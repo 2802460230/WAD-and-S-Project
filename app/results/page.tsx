@@ -79,8 +79,7 @@ export default function ResultsPage() {
   const [solution, setSolution] = useState<Solution | null>(null);
   const [problem, setProblem] = useState("");
   const [bookmarked, setBookmarked] = useState(false);
-  const [practice, setPractice] = useState<{ id: number; problem: string }[]>([]);
-  const [practiceIndex, setPracticeIndex] = useState(0);
+  const [currentPractice, setCurrentPractice] = useState<{ id: number; problem: string } | null>(null);
   const [loadingPractice, setLoadingPractice] = useState(false);
   const [error, setError] = useState("");
   const practiceRef = useRef<HTMLDivElement>(null);
@@ -114,19 +113,18 @@ export default function ResultsPage() {
     }
   };
 
-  const handlePractice = async () => {
+  const fetchPracticeProblem = async (previousProblem?: string) => {
     setLoadingPractice(true);
     try {
       const response = await fetch("/api/practice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: solution?.topic }),
+        body: JSON.stringify({ topic: solution?.topic, previousProblem }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        setPractice(data.problems);
-        setPracticeIndex(0);
+        setCurrentPractice(data.problems?.[0] ?? null);
         setTimeout(() => practiceRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
       }
     } catch {
@@ -136,17 +134,17 @@ export default function ResultsPage() {
     }
   };
 
+  const handlePractice = () => fetchPracticeProblem();
+
   const handleCantSolve = () => {
-    const current = practice[practiceIndex];
-    if (current) {
-      sessionStorage.setItem("importProblem", current.problem);
+    if (currentPractice) {
+      sessionStorage.setItem("importProblem", currentPractice.problem);
     }
     router.push("/dashboard");
   };
 
   const handleNextQuestion = () => {
-    if (practice.length === 0) return;
-    setPracticeIndex((i) => (i + 1) % practice.length);
+    fetchPracticeProblem(currentPractice?.problem);
   };
 
   if (!solution) {
@@ -158,7 +156,6 @@ export default function ResultsPage() {
   }
 
   const finalAnswer = solution.steps[solution.steps.length - 1]?.result;
-  const currentPractice = practice[practiceIndex];
 
   return (
     <>
@@ -258,15 +255,17 @@ export default function ResultsPage() {
                 <div className="mt-4 flex gap-3">
                   <button
                     onClick={handleCantSolve}
-                    className="flex-1 rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface"
+                    disabled={loadingPractice}
+                    className="flex-1 rounded-xl border border-line bg-surface-2 px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-surface disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     Can&apos;t solve it?
                   </button>
                   <button
                     onClick={handleNextQuestion}
-                    className="flex-1 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-brand-ink transition hover:bg-brand-strong"
+                    disabled={loadingPractice}
+                    className="flex-1 rounded-xl bg-brand px-4 py-2.5 text-sm font-semibold text-brand-ink transition hover:bg-brand-strong disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    Next question
+                    {loadingPractice ? "Loading…" : "Next question"}
                   </button>
                 </div>
               </div>

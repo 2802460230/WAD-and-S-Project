@@ -21,6 +21,10 @@ import { getTokenFromRequest, verifyToken } from "@/lib/auth";
  *               topic:
  *                 type: string
  *                 example: Algebra
+ *               previousProblem:
+ *                 type: string
+ *                 description: Optional previous practice problem to generate a similar follow-up for
+ *                 example: Solve for x: 2x + 3 = 11
  *     responses:
  *       200:
  *         description: Practice problems generated successfully
@@ -42,12 +46,12 @@ export async function POST(request: Request) {
       return Response.json({ error: "Invalid or expired token" }, { status: 401 });
     }
 
-    const { topic } = await request.json();
+    const { topic, previousProblem } = await request.json();
     if (!topic || !topic.trim()) {
       return Response.json({ error: "Topic is required" }, { status: 400 });
     }
 
-    const result = await generatePracticeProblems(topic);
+    const result = await generatePracticeProblems(topic, previousProblem);
     if (!result.success) {
       return Response.json({ error: result.error }, { status: 500 });
     }

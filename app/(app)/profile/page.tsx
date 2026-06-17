@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 
 const MATH_TOPICS = new Set(["algebra", "calculus", "geometry", "statistics"]);
@@ -288,7 +289,7 @@ export default function ProfilePage() {
                       {error}
                     </p>
                   )}
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <button
                       type="submit"
                       disabled={loading}
@@ -303,6 +304,12 @@ export default function ProfilePage() {
                     >
                       Cancel
                     </button>
+                    <Link
+                      href="/forgot-password"
+                      className="ml-auto text-sm font-medium text-muted underline underline-offset-2 hover:text-ink"
+                    >
+                      Forgot your password?
+                    </Link>
                   </div>
                 </form>
               )}

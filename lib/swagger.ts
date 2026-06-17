@@ -69,6 +69,58 @@ export function getSwaggerSpec(serverUrl: string) {
           },
         },
       },
+      "/api/auth/forgot-password": {
+        post: {
+          tags: ["Auth"],
+          summary: "Reset a forgotten password using an email address",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["email", "newPassword"],
+                  properties: {
+                    email: { type: "string", example: "user@example.com" },
+                    newPassword: { type: "string", example: "newPassword123" },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "Password reset successfully" },
+            "400": { description: "Validation error or no account found with that email" },
+          },
+        },
+      },
+      "/api/auth/change-password": {
+        post: {
+          tags: ["Auth"],
+          summary: "Change password for the currently logged-in user",
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["currentPassword", "newPassword"],
+                  properties: {
+                    currentPassword: { type: "string", example: "oldPassword123" },
+                    newPassword: { type: "string", example: "newPassword123" },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "Password changed successfully" },
+            "400": { description: "Validation error or current password incorrect" },
+            "401": { description: "Unauthorized" },
+          },
+        },
+      },
       "/api/solve": {
         post: {
           tags: ["Math"],
@@ -125,7 +177,7 @@ export function getSwaggerSpec(serverUrl: string) {
       "/api/practice": {
         post: {
           tags: ["Math"],
-          summary: "Generate practice problems based on topic",
+          summary: "Generate a single practice problem for a topic, optionally similar to a previous one",
           security: [{ bearerAuth: [] }],
           requestBody: {
             required: true,
@@ -136,13 +188,18 @@ export function getSwaggerSpec(serverUrl: string) {
                   required: ["topic"],
                   properties: {
                     topic: { type: "string", example: "Algebra" },
+                    previousProblem: {
+                      type: "string",
+                      description: "Optional previous practice problem to generate a similar follow-up for",
+                      example: "Solve for x: 2x + 3 = 11",
+                    },
                   },
                 },
               },
             },
           },
           responses: {
-            "200": { description: "Array of practice problems returned" },
+            "200": { description: "A single practice problem returned" },
             "401": { description: "Unauthorized" },
           },
         },
