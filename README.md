@@ -507,7 +507,7 @@ Contributions match GitHub commit history.
 
 # 13. AI Usage Disclosure
 
-Claude was used extensively throughout the project with major supervision in order to assist design and write manual code. All generated code was reviewed, tested, and adapted to the specific requirements of this project. The student understands the code and its functionalities.
+Claude was used extensively throughout the project with major supervision in order to assist design and write manual code. All generated code was reviewed, tested, and adapted to the specific requirements of this project. The student understands the code and its functionalities. Claude was also extensively used for testing, for debugs and for generating testcases to be used for testing services and API endpoints
 
 Groq API is used as the AI service powering the application's math solving, OCR, hint generation, and practice problem features.
 
