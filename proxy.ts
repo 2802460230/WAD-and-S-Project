@@ -3,13 +3,13 @@ import type { NextRequest } from "next/server";
 import { verifyToken } from "@/lib/auth";
 
 // Routes that don't require authentication
-const publicRoutes = ["/", "/login", "/register", "/api/auth/login", "/api/auth/register", "/api/docs", "/api/swagger"];
+const publicRoutes = ["/login", "/register", "/api/auth/login", "/api/auth/register", "/api/docs", "/api/swagger"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Allow public routes
-  if (publicRoutes.some((route) => pathname.startsWith(route))) {
+  if (pathname === "/" || publicRoutes.some((route) => pathname.startsWith(route))) {
     return NextResponse.next();
   }
 
